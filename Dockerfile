@@ -15,14 +15,27 @@ RUN apt-get update && \
     novnc \
     websockify \
     && apt-get clean
-    
-# Download the Windows Vista Ultimate ISO
-RUN wget https://ss2.softlay.com/files/en_windows_xp_professional_sp3_Nov_2013_Incl_SATA_Drivers.iso
+
+# Create a directory for the Windows XP ISO and QEMU image
+RUN mkdir -p /data
+
+# Change the working directory to /data
+WORKDIR /data
+
+# Download the Windows XP ISO into the /data directory
+RUN wget -O /data/xp.iso https://ss2.softlay.com/files/en_windows_xp_professional_sp3_Nov_2013_Incl_SATA_Drivers.iso
+
+# Create a QEMU image for Windows XP installation
+RUN qemu-img create -f qcow2 /data/xp.qcow2 64G
+
+# Create a start script to simplify container execution
+RUN echo '#!/bin/sh\n\
+qemu-system-i386 -accel tcg -M pc -m 2G -cdrom /data/xp.iso -vga cirrus -drive file=/data/xp.qcow2,format=qcow2 -vnc :0 &\n\
+websockify --web=/usr/share/novnc 6080 localhost:5900' > /data/start.sh && \
+    chmod +x /data/start.sh
 
 # Expose the VNC port and the web server port
 EXPOSE 5900 6080
 
-RUN qemu-img create -f qcow2 xp.qcow2 64G
- 
-# Start QEMU with web VNC using noVNC
-CMD ["sh", "-c", "qemu-system-i386 -accel tcg -M pc -m 2G -cdrom en_windows_xp_professional_sp3_Nov_2013_Incl_SATA_Drivers.iso -vga cirrus -vnc :0 & websockify --web=/usr/share/novnc 6080 localhost:5900"]
+# Set the default command to execute the start script
+CMD ["/data/start.sh"]
