@@ -12,7 +12,7 @@ RUN apt-get update && \
     python3 \
     python3-pip \
     git \
-    qemu-system-x86 \
+    qemu-system \
     qemu-utils \
     novnc \
     websockify \
