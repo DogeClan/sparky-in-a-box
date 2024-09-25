@@ -17,7 +17,7 @@ RUN apt-get update && \
     && apt-get clean
 
 # Download the SparkyLinux MinimalGUI ISO from the provided URL
-RUN wget -O sparky.iso http://us2.repo.sparkylinux.org/iso/stable/sparkylinux-7.5-i686-minimalgui.iso
+RUN wget -O sparky.iso http://us2.repo.sparkylinux.org/iso/stable/sparkylinux-7.5-i686-minimalcli.iso
 
 # Create a virtual hard disk image for the virtual machine (using a volume)
 RUN qemu-img create -f qcow2 /data/sparky.qcow2 64G
@@ -26,4 +26,4 @@ RUN qemu-img create -f qcow2 /data/sparky.qcow2 64G
 EXPOSE 5900 6080
 
 # Start QEMU with web VNC using noVNC, using the downloaded SparkyLinux ISO file
-CMD ["sh", "-c", "qemu-system-i386 -accel tcg -M pc -m 2G -cdrom sparky.iso -hda /data/sparky.qcow2 -vga cirrus -vnc :0 & websockify --web=/usr/share/novnc 6080 localhost:5900"]
+CMD ["sh", "-c", "qemu-system-i386 -accel tcg -M pc -m 14G -cdrom sparky.iso -hda /data/sparky.qcow2 -vga cirrus -vnc :0 & websockify --web=/usr/share/novnc 6080 localhost:5900"]
